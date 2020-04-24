@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class BotSettingsActivity extends AppCompatActivity {
     TextView botId, groupName, groupId;
 
     Button send;
+    ProgressBar loading;
 
     Bot bot;
     User u;
@@ -66,6 +68,7 @@ public class BotSettingsActivity extends AppCompatActivity {
 
         avatar = findViewById(R.id.avatarImage);
         send = findViewById(R.id.send);
+        loading = findViewById(R.id.loading);
 
         botId = findViewById(R.id.botId);
         groupName = findViewById(R.id.groupName);
@@ -124,6 +127,9 @@ public class BotSettingsActivity extends AppCompatActivity {
     }
 
     public void saveBot() {
+
+        loading.setVisibility(View.VISIBLE);
+
         Bot botUpdate = new Bot();
         botUpdate.setName(name.getText().toString());
         botUpdate.setCallbackUrl(callback.getText().toString());
@@ -131,9 +137,8 @@ public class BotSettingsActivity extends AppCompatActivity {
         botUpdate.setId(bot.getId());
 
         ApiRequest apiRequest = new ApiRequest("EDIT", botUpdate, u);
-        new RequestAsyncTask().execute(apiRequest);
+        new RequestAsyncTask(this).execute(apiRequest);
 
-        goBack();
     }
 
     public void goBack() {

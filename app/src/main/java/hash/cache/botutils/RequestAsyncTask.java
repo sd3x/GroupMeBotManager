@@ -1,5 +1,6 @@
 package hash.cache.botutils;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.Switch;
@@ -12,19 +13,31 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
 public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
 
+
+
+    private WeakReference<ListBotsActivity> listBotsActivity;
+    private WeakReference<BotSettingsActivity> botSettingsActivity;
+
+    public RequestAsyncTask(ListBotsActivity activity) { this.listBotsActivity = new WeakReference<>(activity); }
+    public RequestAsyncTask(BotSettingsActivity activity) { this.botSettingsActivity = new WeakReference<>(activity); }
+    public RequestAsyncTask(){}
+
+    private String type;
+
     @Override
     protected String doInBackground(ApiRequest... params) {
 
         try {
             ApiRequest request = params[0];
-
-            switch (request.getType()) {
+            type = request.getType();
+            switch (type) {
                 case("INDEX"):
                     return makeGetRequest(request);
                 case("EDIT"):
@@ -40,6 +53,16 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+        if(type.equals("INDEX")) {
+            listBotsActivity.get().parseBots(s);
+        } else if(type.equals("EDIT")) {
+            botSettingsActivity.get().goBack();
+        }
+        super.onPostExecute(s);
     }
 
     public String makeGetRequest(ApiRequest request) {
@@ -151,6 +174,7 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
                 while ((line = br.readLine()) != null) {
                     jsonString.append(line);
                 }
+                writer.close();
                 br.close();
             } catch (Exception ex) {
                 ex.printStackTrace();

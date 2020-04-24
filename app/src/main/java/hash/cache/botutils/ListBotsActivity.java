@@ -6,6 +6,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -21,12 +23,17 @@ public class ListBotsActivity extends AppCompatActivity {
     ArrayList<Bot> bots;
     ArrayList<Fragment> botsFragList;
 
+    ProgressBar loading;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_bots);
 
         u = (User) getIntent().getExtras().get("user");
+
+        loading = findViewById(R.id.loading);
+        loading.setVisibility(View.VISIBLE);
 
         System.out.println("EDITOR COOKIE IS" + u.getEditor_token());
 
@@ -39,6 +46,7 @@ public class ListBotsActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         //refreshes activity on restart
+        loading.setVisibility(View.VISIBLE);
         removeBots();
         getBots();
         super.onRestart();
@@ -47,6 +55,7 @@ public class ListBotsActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         //when instance saves, remove bots and their fragments
+        loading.setVisibility(View.VISIBLE);
         removeBots();
         super.onSaveInstanceState(outState);
     }
@@ -55,12 +64,7 @@ public class ListBotsActivity extends AppCompatActivity {
 
         //make bot index request
         ApiRequest apiRequest = new ApiRequest("INDEX", u);
-        try {
-            parseBots(new RequestAsyncTask().execute(apiRequest).get());
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            showErrToast();
-        }
+        new RequestAsyncTask(this).execute(apiRequest);
     }
 
     public void parseBots(String index) {
@@ -80,6 +84,7 @@ public class ListBotsActivity extends AppCompatActivity {
 
                 addBot(b);
             }
+            loading.setVisibility(View.INVISIBLE);
         } catch (JSONException e) {
            showErrToast();
            e.printStackTrace();
