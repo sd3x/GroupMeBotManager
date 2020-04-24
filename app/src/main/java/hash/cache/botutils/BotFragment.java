@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class BotFragment extends Fragment {

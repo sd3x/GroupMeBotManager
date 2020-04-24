@@ -12,9 +12,10 @@ public class ApiRequest {
         setUser(user);
     }
 
-    ApiRequest(String type, JSONObject body, User user) {
+    ApiRequest(String type, String[] messages, Bot bot, User user) {
         setType(type);
-        setBody(body);
+        setMessages(messages);
+        setBot(bot);
         setUser(user);
     }
 
@@ -29,6 +30,15 @@ public class ApiRequest {
     private JSONObject body;
     private User user;
     private Bot bot;
+    private String[] messages;
+
+    public String[] getMessages() {
+        return messages;
+    }
+
+    public void setMessages(String[] messages) {
+        this.messages = messages;
+    }
 
     public Bot getBot() {
         return bot;
@@ -38,7 +48,7 @@ public class ApiRequest {
         this.bot = bot;
     }
 
-    //types are: create, message, index, delete
+    //types are: create, edit, message, index, delete
     private String type;
 
     public void setBody(JSONObject json) {

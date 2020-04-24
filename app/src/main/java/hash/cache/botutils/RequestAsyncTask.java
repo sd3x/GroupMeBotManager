@@ -1,6 +1,13 @@
 package hash.cache.botutils;
 
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.widget.Switch;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,14 +24,17 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
         try {
             ApiRequest request = params[0];
 
-            if (request.getType().equals("INDEX")) //"INDEX" is the only GET request of the types
-                return makeGetRequest(request);
-            else if (request.getType().equals("EDIT")) { //EDIT requests are special
-                return makeEditRequest(request);
+            switch (request.getType()) {
+                case("INDEX"):
+                    return makeGetRequest(request);
+                case("EDIT"):
+                    return makeEditRequest(request);
+                case("MESSAGE"):
+                    sendMessage(request);
+                    break;
+                default:
+                    return makePostRequest(request);
             }
-
-            else
-                return makePostRequest(request);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,8 +75,6 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
         try {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
-            String line;
-            StringBuffer jsonString = new StringBuffer();
             connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             connection.setRequestMethod("POST");
             connection.setDoInput(true);
@@ -116,7 +124,7 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
                     "=" + URLEncoder.encode(b.getCallbackUrl(), "UTF-8");
 
             payload += "&" + URLEncoder.encode("bot[avatar_url]", "UTF-8") +
-                    "=" + URLEncoder.encode("", "UTF-8");
+                    "=" + URLEncoder.encode(b.getAvatarUrl(),"UTF-8");
 
             payload += "&" + URLEncoder.encode("bot[bot_id]", "UTF-8") +
                     "=" + URLEncoder.encode(b.getId(), "UTF-8");
@@ -126,7 +134,7 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
             URL url = request.getUrl();
             HttpURLConnection uc = (HttpURLConnection) url.openConnection();
             String line;
-            StringBuffer jsonString = new StringBuffer();
+            StringBuilder jsonString = new StringBuilder();
             uc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             uc.setRequestProperty("Cookie", "Cookie: " + docsCookie + " " + ARRACookie + " " + TokenCookie + " " + authCookie);
             uc.setRequestMethod("POST");
@@ -137,28 +145,40 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
             writer.write(payload);
             writer.close();
 
+            //reading the output is necessary for the edit to complete, even though it's not used
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
                 while ((line = br.readLine()) != null) {
                     jsonString.append(line);
                 }
-                System.out.println(uc.getResponseCode());
                 br.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                writer.close();
-                uc.disconnect();
                 return "FAIL";
             } finally {
                 writer.close();
                 uc.disconnect();
             }
-                uc.disconnect();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "FAIL";
-            }
+            uc.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "FAIL";
+        }
             return "SUCCESS";
         }
 
+        public void sendMessage(ApiRequest request) {
+            for(int i = 0; i < request.getMessages().length; i++) {
+                JSONObject body = new JSONObject();
+                try {
+                    body.put("bot_id", request.getBot().getId());
+                    body.put("text", request.getMessages()[i]);
+                    System.out.println(body);
+                    request.setBody(body);
+                    makePostRequest(request);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }

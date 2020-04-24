@@ -2,25 +2,33 @@ package hash.cache.botutils;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class BotSettingsActivity extends AppCompatActivity {
 
 
-    EditText name, callback, avatarUrl;
+    EditText name, callback, avatarUrl, toSend;
     ImageView avatar;
     TextView botId, groupName, groupId;
+
+    Button send;
 
     Bot bot;
     User u;
@@ -57,14 +65,41 @@ public class BotSettingsActivity extends AppCompatActivity {
         avatarUrl = findViewById(R.id.avatarText);
 
         avatar = findViewById(R.id.avatarImage);
+        send = findViewById(R.id.send);
 
         botId = findViewById(R.id.botId);
         groupName = findViewById(R.id.groupName);
         groupId = findViewById(R.id.groupId);
+        toSend = findViewById(R.id.toSend);
 
         setAvatar();
         setTexts();
 
+    }
+
+    public void sendMessage(View v) {
+        String message = toSend.getText().toString();
+        String[] parsedMessages = charLimitParse(message);
+
+        ApiRequest request = new ApiRequest("MESSAGE", parsedMessages, bot, u);
+        new RequestAsyncTask().execute(request);
+        toSend.setText("");
+        Toast.makeText(getApplicationContext(), "Message Sent!", Toast.LENGTH_SHORT).show();
+    }
+
+    public String[] charLimitParse(String s) {
+        if(s.length() > 1000) {
+
+            List<String> parts = new ArrayList<>();
+
+            int length = s.length();
+            for (int i = 0; i < length; i += 1000) {
+                parts.add(s.substring(i, Math.min(length, i + 1000)));
+            }
+            return parts.toArray(new String[0]);
+        } else {
+            return new String[] {s};
+        }
     }
 
     public void setAvatar() {
@@ -97,5 +132,13 @@ public class BotSettingsActivity extends AppCompatActivity {
 
         ApiRequest apiRequest = new ApiRequest("EDIT", botUpdate, u);
         new RequestAsyncTask().execute(apiRequest);
+
+        goBack();
+    }
+
+    public void goBack() {
+        Intent intent = new Intent(getApplicationContext(), ListBotsActivity.class);
+        finish();
+        startActivity(intent);
     }
 }
