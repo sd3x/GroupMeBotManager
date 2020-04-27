@@ -14,7 +14,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,7 +60,7 @@ public class BotSettingsActivity extends AppCompatActivity {
         setTitle("Bot Editor");
 
 
-        name = findViewById(R.id.nameText);
+        name = findViewById(R.id.name);
 
         callback = findViewById(R.id.callbackText);
         avatarUrl = findViewById(R.id.avatarText);
@@ -85,7 +84,7 @@ public class BotSettingsActivity extends AppCompatActivity {
         String[] parsedMessages = charLimitParse(message);
 
         ApiRequest request = new ApiRequest("MESSAGE", parsedMessages, bot, u);
-        new RequestAsyncTask().execute(request);
+        new RequestAsyncTask(this).execute(request);
         toSend.setText("");
         Toast.makeText(getApplicationContext(), "Message Sent!", Toast.LENGTH_SHORT).show();
     }
@@ -130,13 +129,17 @@ public class BotSettingsActivity extends AppCompatActivity {
 
         loading.setVisibility(View.VISIBLE);
 
-        Bot botUpdate = new Bot();
-        botUpdate.setName(name.getText().toString());
-        botUpdate.setCallbackUrl(callback.getText().toString());
-        botUpdate.setAvatarUrl(avatarUrl.getText().toString());
-        botUpdate.setId(bot.getId());
+        JSONObject update = new JSONObject();
+        try {
+            update.put("bot[name]", name.getText().toString());
+            update.put("bot[callback_url]", callback.getText().toString());
+            update.put("bot[avatar_url]", avatarUrl.getText().toString());
+            update.put("bot[bot_id]", bot.getId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        ApiRequest apiRequest = new ApiRequest("EDIT", botUpdate, u);
+        ApiRequest apiRequest = new ApiRequest("EDIT", update, bot, u);
         new RequestAsyncTask(this).execute(apiRequest);
 
     }

@@ -1,30 +1,25 @@
 package hash.cache.botutils;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.InputStream;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class BotFragment extends Fragment {
 
     private TextView name, id, group, groupId;
     private ImageView avatar;
-    private Button settings;
+    private ImageButton settings;
 
     private Bot bot;
     private User u;
@@ -36,7 +31,7 @@ public class BotFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_bot, container, false);
 
-        name = view.findViewById(R.id.name);
+        name = view.findViewById(R.id.nameTag);
         id = view.findViewById(R.id.id);
         group = view.findViewById(R.id.group);
         groupId = view.findViewById(R.id.groupId);

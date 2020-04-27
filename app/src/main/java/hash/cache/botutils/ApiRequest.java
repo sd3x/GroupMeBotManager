@@ -19,10 +19,17 @@ public class ApiRequest {
         setUser(user);
     }
 
-    ApiRequest(String type, Bot bot, User user) {
+    ApiRequest(String type, JSONObject body, Bot bot, User user) {
         setType(type);
-        setUser(user);
+        setBody(body);
         setBot(bot);
+        setUser(user);
+    }
+
+    ApiRequest(String type, JSONObject body, User user) {
+        setType(type);
+        setBody(body);
+        setUser(user);
     }
 
     private final String BASE_URL = "https://api.groupme.com/v3";
@@ -48,7 +55,7 @@ public class ApiRequest {
         this.bot = bot;
     }
 
-    //types are: create, edit, message, index, delete
+    //types are: create, edit, message, index, delete, group
     private String type;
 
     public void setBody(JSONObject json) {
@@ -73,6 +80,7 @@ public class ApiRequest {
 
     public void setType(String type) {
         switch (type) {
+            case("GROUP"):
             case("EDIT"):
             case("CREATE"):
             case("MESSAGE"):
@@ -89,14 +97,23 @@ public class ApiRequest {
         String url = BASE_URL;
         switch (type) {
             case("INDEX"):
-            case("CREATE"):
-                url += "/bots";
+                url += "/bots?";
                 break;
+            case("CREATE"):
+                try {
+                    return new URL("https://dev.groupme.com/bots");
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             case("MESSAGE"):
-                url += "/bots/post";
+                url += "/bots/post?";
                 break;
             case("DESTROY"):
-                url += "/bots/destroy";
+                url += "/bots/destroy?";
+                break;
+            case("GROUP"):
+                url += "/groups?&omit=memberships";
                 break;
             case("EDIT"):
                 try {
@@ -109,7 +126,7 @@ public class ApiRequest {
                 throw new IllegalArgumentException("Invalid Type");
         }
         try {
-            return new URL(url + "?&token=" + user.getAccess_token());
+            return new URL(url + "&token=" + user.getAccess_token());
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return null;

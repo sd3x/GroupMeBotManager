@@ -17,7 +17,7 @@
         android:layout_width="@android:dimen/app_icon_size" />
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/nameTag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -28,6 +28,7 @@
 
     <TextView
         android:id="@+id/id"
+        android:textIsSelectable="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -35,13 +36,13 @@
         app:layout_constraintBottom_toBottomOf="@+id/avatarLabel"
         app:layout_constraintStart_toEndOf="@+id/avatarLabel" />
 
-    <Button
+    <ImageButton
         android:id="@+id/settings"
         android:layout_width="@android:dimen/app_icon_size"
         android:layout_height="@android:dimen/app_icon_size"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="⚙"
+        android:src="@android:drawable/ic_menu_manage"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/avatarLabel"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,6 +60,7 @@
 
     <TextView
         android:id="@+id/groupId"
+        android:textIsSelectable="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"

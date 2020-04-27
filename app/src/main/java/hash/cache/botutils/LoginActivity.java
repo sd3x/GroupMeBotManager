@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
                     web.setVisibility(View.INVISIBLE);
                     setTitle("");
                     String callbackWithToken = request.getUrl().toString();
-                    System.out.println(callbackWithToken);
+
                     String accessToken = callbackWithToken.substring((callbackPrefix + "?access_token=").length());
                     u.setAccess_token(accessToken);
 
@@ -67,7 +67,6 @@ public class LoginActivity extends AppCompatActivity {
                         login(u, true);
                     }
 
-                    System.out.println(u.getAccess_token());
                 }
                 return false;
             }

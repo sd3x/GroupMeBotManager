@@ -17,6 +17,7 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Iterator;
 
 public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
 
@@ -24,9 +25,11 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
 
     private WeakReference<ListBotsActivity> listBotsActivity;
     private WeakReference<BotSettingsActivity> botSettingsActivity;
+    private WeakReference<CreateBotActivity> createBotActivity;
 
     public RequestAsyncTask(ListBotsActivity activity) { this.listBotsActivity = new WeakReference<>(activity); }
     public RequestAsyncTask(BotSettingsActivity activity) { this.botSettingsActivity = new WeakReference<>(activity); }
+    public RequestAsyncTask(CreateBotActivity activity) { this.createBotActivity = new WeakReference<>(activity); }
     public RequestAsyncTask(){}
 
     private String type;
@@ -37,11 +40,14 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
         try {
             ApiRequest request = params[0];
             type = request.getType();
+
             switch (type) {
                 case("INDEX"):
+                case("GROUP"):
                     return makeGetRequest(request);
                 case("EDIT"):
-                    return makeEditRequest(request);
+                case("CREATE"):
+                    return makeEditorRequest(request);
                 case("MESSAGE"):
                     sendMessage(request);
                     break;
@@ -55,14 +61,26 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
         return null;
     }
 
+
     @Override
     protected void onPostExecute(String s) {
-        if(type.equals("INDEX")) {
-            listBotsActivity.get().parseBots(s);
-        } else if(type.equals("EDIT")) {
-            botSettingsActivity.get().goBack();
+
+        switch (type) {
+            case("CREATE"):
+                createBotActivity.get().goBack();
+                break;
+            case("GROUP"):
+                createBotActivity.get().postGroups(s);
+                break;
+            case("INDEX"):
+                listBotsActivity.get().parseBots(s);
+                break;
+            case("EDIT"):
+                botSettingsActivity.get().goBack();
+                break;
         }
-        super.onPostExecute(s);
+
+         super.onPostExecute(s);
     }
 
     public String makeGetRequest(ApiRequest request) {
@@ -81,7 +99,9 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
                     response.append(inputLine);
                 }
                 connection.disconnect();
+
                 return response.toString();
+
             } else {
                 connection.disconnect();
                 return "Bad Status";
@@ -105,7 +125,6 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
             connection.connect();
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
             writer.write(request.getBody().toString());
-
             writer.close();
 
             if(connection.getResponseCode() == 201) {
@@ -121,9 +140,10 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
         }
     }
 
-   public String makeEditRequest(ApiRequest request) {
-        String payload;
-        Bot b = request.getBot();
+   public String makeEditorRequest(ApiRequest request) {
+        String payload = "";
+
+        Iterator<String> keys = request.getBody().keys();
 
             //These cookies are needed, but can have arbitrary values
             String docsCookie = "_docs_session=COOKIE;";
@@ -134,25 +154,21 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
             String authCookie = "us=" + request.getUser().getEditor_token();
 
         try {
+
             payload = URLEncoder.encode("utf8", "UTF-8") +
                     "=" + URLEncoder.encode("✓", "UTF-8");
 
-            payload += "&" + URLEncoder.encode("_method", "UTF-8") +
-                    "=" + URLEncoder.encode("put", "UTF-8");
 
-            payload += "&" + URLEncoder.encode("bot[name]", "UTF-8") +
-                    "=" + URLEncoder.encode(b.getName(), "UTF-8");
+            if(request.getType().equals("EDIT"))
+                payload += "&" + URLEncoder.encode("_method", "UTF-8") +
+                        "=" + URLEncoder.encode("put", "UTF-8");
 
-            payload += "&" + URLEncoder.encode("bot[callback_url]", "UTF-8") +
-                    "=" + URLEncoder.encode(b.getCallbackUrl(), "UTF-8");
+            while(keys.hasNext()) {
+                String key = keys.next();
 
-            payload += "&" + URLEncoder.encode("bot[avatar_url]", "UTF-8") +
-                    "=" + URLEncoder.encode(b.getAvatarUrl(),"UTF-8");
-
-            payload += "&" + URLEncoder.encode("bot[bot_id]", "UTF-8") +
-                    "=" + URLEncoder.encode(b.getId(), "UTF-8");
-
-            System.out.println(payload);
+                payload += "&" + URLEncoder.encode(key, "UTF-8") +
+                        "=" + URLEncoder.encode(request.getBody().getString(key), "UTF-8");
+            }
 
             URL url = request.getUrl();
             HttpURLConnection uc = (HttpURLConnection) url.openConnection();
@@ -168,7 +184,7 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
             writer.write(payload);
             writer.close();
 
-            //reading the output is necessary for the edit to complete, even though it's not used
+            //reading the output is necessary for the edit/creation to complete, even though it's not used
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
                 while ((line = br.readLine()) != null) {
@@ -178,6 +194,7 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
                 br.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
+                writer.close();
                 return "FAIL";
             } finally {
                 writer.close();
@@ -197,7 +214,6 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
                 try {
                     body.put("bot_id", request.getBot().getId());
                     body.put("text", request.getMessages()[i]);
-                    System.out.println(body);
                     request.setBody(body);
                     makePostRequest(request);
                 } catch (JSONException e) {

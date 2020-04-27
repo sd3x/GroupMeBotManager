@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DevLoginActivity"></activity>
+        <activity android:name=".CreateBotActivity"></activity>
+        <activity android:name=".DevLoginActivity" />
         <activity android:name=".BotSettingsActivity" />
         <activity android:name=".ListBotsActivity" />
         <activity

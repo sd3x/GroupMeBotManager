@@ -60,8 +60,6 @@ public class DevLoginActivity extends AppCompatActivity {
 
                     u.setEditor_token(authCookie);
                     login(u);
-
-                    System.out.println(authCookie);
                 }
                 return false;
             }

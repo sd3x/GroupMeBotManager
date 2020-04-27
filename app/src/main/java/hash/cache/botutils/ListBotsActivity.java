@@ -35,8 +35,6 @@ public class ListBotsActivity extends AppCompatActivity {
         loading = findViewById(R.id.loading);
         loading.setVisibility(View.VISIBLE);
 
-        System.out.println("EDITOR COOKIE IS" + u.getEditor_token());
-
         bots = new ArrayList<>();
         botsFragList = new ArrayList<>();
 
@@ -63,6 +61,7 @@ public class ListBotsActivity extends AppCompatActivity {
     public void getBots() {
 
         //make bot index request
+
         ApiRequest apiRequest = new ApiRequest("INDEX", u);
         new RequestAsyncTask(this).execute(apiRequest);
     }
@@ -84,6 +83,9 @@ public class ListBotsActivity extends AppCompatActivity {
 
                 addBot(b);
             }
+
+            addCreateBotFrag();
+
             loading.setVisibility(View.INVISIBLE);
         } catch (JSONException e) {
            showErrToast();
@@ -109,6 +111,24 @@ public class ListBotsActivity extends AppCompatActivity {
         //add fragment and bot to list to keep track of
         botsFragList.add(botFrag);
         bots.add(bot);
+    }
+
+    public void addCreateBotFrag() {
+
+        //give user object to the create fragment to pass to create activity
+        CreateBotFragment createFrag = new CreateBotFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("user", u);
+        createFrag.setArguments(args);
+
+        //adds fragment to botFragHolder
+        FragmentManager fragMan = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragMan.beginTransaction();
+        fragmentTransaction.add(R.id.botFragHolder, createFrag);
+        fragmentTransaction.commitAllowingStateLoss();
+
+        //add fragment and bot to list to keep track of
+        botsFragList.add(createFrag);
     }
 
     public void removeBots() {
