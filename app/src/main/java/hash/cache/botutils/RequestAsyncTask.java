@@ -192,8 +192,6 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
                 payload = "button=";
             }
 
-            System.out.println(payload);
-
             URL url = request.getUrl();
             HttpURLConnection uc = (HttpURLConnection) url.openConnection();
             String line;
