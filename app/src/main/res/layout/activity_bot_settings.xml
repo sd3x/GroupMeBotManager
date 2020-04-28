@@ -133,7 +133,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="Bot ID:"
-                    app:layout_constraintStart_toStartOf="@+id/avatarImage"
+                    app:layout_constraintStart_toStartOf="@+id/avatarLabel"
                     app:layout_constraintTop_toBottomOf="@+id/avatarText" />
 
                 <TextView
@@ -156,34 +156,50 @@
 
                 <TextView
                     android:id="@+id/botId"
-                    android:textIsSelectable="true"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:text="aaaaaaaaaa"
+                    android:textIsSelectable="true"
                     app:layout_constraintBottom_toBottomOf="@+id/textView18"
+                    app:layout_constraintEnd_toEndOf="@+id/avatarText"
                     app:layout_constraintStart_toEndOf="@+id/textView20"
                     app:layout_constraintTop_toTopOf="@+id/textView18" />
 
                 <TextView
                     android:id="@+id/groupName"
-                    android:textIsSelectable="true"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="AAAAAAA"
+                    android:text="AAA"
+                    android:textIsSelectable="true"
+                    app:layout_constraintEnd_toEndOf="@+id/botId"
                     app:layout_constraintStart_toStartOf="@+id/botId"
                     app:layout_constraintTop_toBottomOf="@+id/botId" />
 
                 <TextView
                     android:id="@+id/groupId"
-                    android:textIsSelectable="true"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="BBBBBBBB"
+                    android:textIsSelectable="true"
+                    app:layout_constraintEnd_toEndOf="@+id/groupName"
                     app:layout_constraintStart_toStartOf="@+id/groupName"
                     app:layout_constraintTop_toBottomOf="@+id/groupName" />
+
+                <ImageButton
+                    android:id="@+id/delete"
+                    android:layout_width="@android:dimen/app_icon_size"
+                    android:layout_height="@android:dimen/app_icon_size"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="@android:color/holo_red_dark"
+                    android:src="@android:drawable/ic_menu_delete"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/callbackText"
+                    app:layout_constraintStart_toStartOf="@+id/callbackText"
+                    app:layout_constraintTop_toBottomOf="@+id/callbackText" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 

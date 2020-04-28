@@ -15,9 +15,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
 
@@ -47,6 +49,7 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
                     return makeGetRequest(request);
                 case("EDIT"):
                 case("CREATE"):
+                case("DESTROY"):
                     return makeEditorRequest(request);
                 case("MESSAGE"):
                     sendMessage(request);
@@ -76,6 +79,7 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
                 listBotsActivity.get().parseBots(s);
                 break;
             case("EDIT"):
+            case("DESTROY"):
                 botSettingsActivity.get().goBack();
                 break;
         }
@@ -84,7 +88,13 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
     }
 
     public String makeGetRequest(ApiRequest request) {
-        URL url = request.getUrl();
+        URL url;
+        try {
+            url = request.getUrl();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return "FAIL";
+        }
         try {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
@@ -114,7 +124,13 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
     }
 
     public String makePostRequest(ApiRequest request) {
-        URL url = request.getUrl();
+        URL url;
+        try {
+            url = request.getUrl();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return "FAIL";
+        }
         try {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
@@ -143,32 +159,40 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
    public String makeEditorRequest(ApiRequest request) {
         String payload = "";
 
-        Iterator<String> keys = request.getBody().keys();
+        Iterator<String> keys;
 
-            //These cookies are needed, but can have arbitrary values
-            String docsCookie = "_docs_session=COOKIE;";
-            String ARRACookie = "ARRAffinity=COOKIE;";
-            String TokenCookie = "token=cookie;";
+        //These cookies are needed, but can have arbitrary values
+        String docsCookie = "_docs_session=COOKIE;";
+        String ARRACookie = "ARRAffinity=COOKIE;";
+        String TokenCookie = "token=cookie;";
 
-            // This cookie is used for authentication
-            String authCookie = "us=" + request.getUser().getEditor_token();
+        // This cookie is used for authentication
+        String authCookie = "us=" + request.getUser().getEditor_token();
 
         try {
+            if(!type.equals("DESTROY")) {
 
-            payload = URLEncoder.encode("utf8", "UTF-8") +
-                    "=" + URLEncoder.encode("✓", "UTF-8");
+                payload += URLEncoder.encode("utf8", "UTF-8") +
+                        "=" + URLEncoder.encode("✓", "UTF-8");
 
+                keys = request.getBody().keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
 
-            if(request.getType().equals("EDIT"))
-                payload += "&" + URLEncoder.encode("_method", "UTF-8") +
-                        "=" + URLEncoder.encode("put", "UTF-8");
+                    payload += "&" + URLEncoder.encode(key, "UTF-8") +
+                            "=" + URLEncoder.encode(request.getBody().getString(key), "UTF-8");
+                }
 
-            while(keys.hasNext()) {
-                String key = keys.next();
+                if(type.equals("EDIT")) {
+                    payload += "&" + URLEncoder.encode("_method", "UTF-8") +
+                            "=" + URLEncoder.encode("put", "UTF-8");
+                }
 
-                payload += "&" + URLEncoder.encode(key, "UTF-8") +
-                        "=" + URLEncoder.encode(request.getBody().getString(key), "UTF-8");
+            } else {
+                payload = "button=";
             }
+
+            System.out.println(payload);
 
             URL url = request.getUrl();
             HttpURLConnection uc = (HttpURLConnection) url.openConnection();

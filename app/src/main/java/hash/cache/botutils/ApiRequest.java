@@ -12,6 +12,12 @@ public class ApiRequest {
         setUser(user);
     }
 
+    ApiRequest(String type, Bot bot, User user) {
+        setType(type);
+        setBot(bot);
+        setUser(user);
+    }
+
     ApiRequest(String type, String[] messages, Bot bot, User user) {
         setType(type);
         setMessages(messages);
@@ -93,43 +99,27 @@ public class ApiRequest {
         }
     }
 
-    public URL getUrl() {
+    public URL getUrl() throws MalformedURLException {
         String url = BASE_URL;
         switch (type) {
             case("INDEX"):
                 url += "/bots?";
                 break;
             case("CREATE"):
-                try {
-                    return new URL("https://dev.groupme.com/bots");
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                    return null;
-                }
+                return new URL("https://dev.groupme.com/bots");
             case("MESSAGE"):
                 url += "/bots/post?";
                 break;
             case("DESTROY"):
-                url += "/bots/destroy?";
-                break;
+                return new URL("https://dev.groupme.com/bots/" + bot.getId() + "/delete");
             case("GROUP"):
                 url += "/groups?&omit=memberships";
                 break;
             case("EDIT"):
-                try {
                     return new URL("https://dev.groupme.com/bots/" + bot.getId());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                    return null;
-                }
             default:
                 throw new IllegalArgumentException("Invalid Type");
         }
-        try {
             return new URL(url + "&token=" + user.getAccess_token());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 }

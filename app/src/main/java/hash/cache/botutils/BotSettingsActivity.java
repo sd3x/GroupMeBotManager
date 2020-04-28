@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class BotSettingsActivity extends AppCompatActivity {
@@ -29,6 +31,7 @@ public class BotSettingsActivity extends AppCompatActivity {
     TextView botId, groupName, groupId;
 
     Button send;
+    ImageButton delete;
     ProgressBar loading;
 
     Bot bot;
@@ -55,8 +58,8 @@ public class BotSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bot_settings);
 
-        u = (User) getIntent().getExtras().getSerializable("user");
-        bot = (Bot) getIntent().getExtras().getSerializable("bot");
+        u = (User) Objects.requireNonNull(getIntent().getExtras()).getSerializable("user");
+        bot = (Bot) Objects.requireNonNull(getIntent().getExtras().getSerializable("bot"));
         setTitle("Bot Editor");
 
 
@@ -67,6 +70,7 @@ public class BotSettingsActivity extends AppCompatActivity {
 
         avatar = findViewById(R.id.avatarImage);
         send = findViewById(R.id.send);
+        delete = findViewById(R.id.delete);
         loading = findViewById(R.id.loading);
 
         botId = findViewById(R.id.botId);
@@ -76,6 +80,18 @@ public class BotSettingsActivity extends AppCompatActivity {
 
         setAvatar();
         setTexts();
+
+
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DeleteConfirmationFragment deleteFrag = new DeleteConfirmationFragment();
+                Bundle args = new Bundle();
+                args.putSerializable("bot", bot);
+                deleteFrag.setArguments(args);
+                deleteFrag.show(getSupportFragmentManager(), "Confirmation");
+            }
+        });
 
     }
 
@@ -142,6 +158,11 @@ public class BotSettingsActivity extends AppCompatActivity {
         ApiRequest apiRequest = new ApiRequest("EDIT", update, bot, u);
         new RequestAsyncTask(this).execute(apiRequest);
 
+    }
+
+    public void deleteBot() {
+        ApiRequest request = new ApiRequest("DESTROY", bot, u);
+        new RequestAsyncTask(this).execute(request);
     }
 
     public void goBack() {
