@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         setTitle("GroupMe Oauth");
 
         web = findViewById(R.id.web);
+        web.setVisibility(View.INVISIBLE);
         u = new User();
 
         //set browser settings needed for login and token to be cached by browser for auto-login later
@@ -67,37 +68,13 @@ public class LoginActivity extends AppCompatActivity {
                         login(u, true);
                     }
 
+                } else {
+                    web.setVisibility(View.VISIBLE);
                 }
                 return false;
             }
         });
         web.loadUrl("https://oauth.groupme.com/oauth/authorize?client_id=" + applicationToken);
-
-//        switchTheme = findViewById(R.id.button);
- //       next = findViewById(R.id.next);
-  //      nightMode = isNightModeActive(getApplicationContext());
-
-   //     switchTheme.setText(nightMode ? "Light Mode" : "Dark Mode");
-
-   /*     switchTheme.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int mode = nightMode ? AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES;
-                AppCompatDelegate.setDefaultNightMode(mode);
-                Intent intent = getIntent();
-                finish();
-                overridePendingTransition(0, 0);
-                startActivity(intent);
-            }
-        }); */
-
-    /*    next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent= new Intent(getApplicationContext(), Main2Activity.class);
-                startActivity(intent);
-            }
-        }); */
 
     }
 
@@ -121,26 +98,5 @@ public class LoginActivity extends AppCompatActivity {
         //start next activity with no transition
         overridePendingTransition(0,0);
     }
-
-    //Light/dark theme switcher for later use
-    public static boolean isNightModeActive(Context context) {
-        int defaultNightMode = AppCompatDelegate.getDefaultNightMode();
-        if (defaultNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-            return true;
-        }
-        if (defaultNightMode == AppCompatDelegate.MODE_NIGHT_NO) {
-            return false;
-        }
-
-        int currentNightMode = context.getResources().getConfiguration().uiMode
-                & Configuration.UI_MODE_NIGHT_MASK;
-        switch (currentNightMode) {
-            case Configuration.UI_MODE_NIGHT_NO:
-            case Configuration.UI_MODE_NIGHT_UNDEFINED:
-                return false;
-            case Configuration.UI_MODE_NIGHT_YES:
-                return true;
-        }
-        return false;
-    }
+    
 }

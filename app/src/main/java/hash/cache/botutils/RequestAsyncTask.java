@@ -205,25 +205,9 @@ public class RequestAsyncTask extends AsyncTask<ApiRequest, String, String> {
             OutputStreamWriter writer = new OutputStreamWriter(uc.getOutputStream(), "UTF-8");
             writer.write(payload);
             writer.close();
-
-            //reading the output is necessary for the edit/creation to complete, even though it's not used
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
-                while ((line = br.readLine()) != null) {
-                    jsonString.append(line);
-                }
-                writer.close();
-                br.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                writer.close();
-                return "FAIL";
-            } finally {
-                writer.close();
-                uc.disconnect();
-            }
+            uc.getResponseCode();
             uc.disconnect();
-        } catch (Exception e) {
+            } catch (Exception e) {
             e.printStackTrace();
             return "FAIL";
         }
